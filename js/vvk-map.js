@@ -1,5 +1,3 @@
-var solitaOfficeHkiLocation = [60.176839, 24.938555];
-
 var vvkMap = function() {
   this.markerForPlaceIdMap = {};
   this.map = null;
@@ -13,7 +11,7 @@ var vvkMap = function() {
 
   this.createMap = function() {
     this.map = L.map('map', {maxZoom: 22})
-        .setView(solitaOfficeHkiLocation, 19)
+        .setView(vvk.solitaOfficeHkiLocation, 19)
         .addControl(new vvkGoToHomeControl())
         .on('click', function(e) { console.log([e.latlng.lat, e.latlng.lng]); });
 
@@ -94,7 +92,7 @@ var vvkGoToHomeControl = L.Control.extend({
   },
 
   _onClick: function() {
-      this._map.setView(solitaOfficeHkiLocation, 19);
+      this._map.setView(vvk.solitaOfficeHkiLocation);
   }
  
 });
