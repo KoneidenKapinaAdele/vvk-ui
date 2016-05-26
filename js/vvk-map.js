@@ -4,7 +4,7 @@ var vvkMap = function() {
   this.freeIcon = L.icon({iconUrl: 'img/toilet_free_25px.png', iconSize: [25, 25]});
   this.occupiedIcon = L.icon({iconUrl: 'img/toilet_occupied_25px.png', iconSize: [25, 25]});
 
-  this.start = function(deviceService) {
+  this.start = function() {
     this.createMap();
     this.startPlaceStatusUpdatePoller();
   };
@@ -13,6 +13,7 @@ var vvkMap = function() {
     this.map = L.map('map', {maxZoom: 22})
         .setView(vvk.solitaOfficeHkiLocation, 19)
         .addControl(new vvkGoToHomeControl())
+        .addControl(new vvkRadiatorControl())
         .on('click', function(e) { console.log([e.latlng.lat, e.latlng.lng]); });
 
     L.control.scale({metric: true, imperial: false}).addTo(this.map);
@@ -96,3 +97,24 @@ var vvkGoToHomeControl = L.Control.extend({
   }
  
 });
+
+var vvkRadiatorControl = L.Control.extend({
+ 
+  options: {
+    position: 'topleft'
+  },
+ 
+  onAdd: function (map) {
+    var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-radiator');
+
+    var link = L.DomUtil.create('a', 'leaflet-bar-part leaflet-bar-part-single', container);
+    link.href = 'radiator.html';
+    link.title = 'Show places status in radiator';
+
+    var icon = L.DomUtil.create('span', 'fa fa-th', link);
+
+    return container;
+  }
+ 
+});
+vvk.map = new vvkMap();

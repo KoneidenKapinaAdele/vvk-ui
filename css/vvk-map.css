@@ -6,7 +6,8 @@ html, body, #map {
 	overflow: hidden;
 }
 
-.leaflet-control-go-to-home a {
+.leaflet-control-go-to-home a,
+.leaflet-control-radiator a {
 	font-size: 1.4em;
 	color: #444;
 }
