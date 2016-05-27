@@ -3,10 +3,12 @@ var vvkMap = function() {
   this.map = null;
   this.freeIcon = L.icon({iconUrl: 'img/toilet_free_25px.png', iconSize: [25, 25]});
   this.occupiedIcon = L.icon({iconUrl: 'img/toilet_occupied_25px.png', iconSize: [25, 25]});
+  this.unknownStateIcon = L.icon({iconUrl: 'img/toilet_unknown_state_25px.png', iconSize: [25, 25]});
 
   this.start = function() {
     this.createMap();
     this.startPlaceStatusUpdatePoller();
+    this.fetchPlaces();
   };
 
   this.createMap = function() {
@@ -40,8 +42,15 @@ var vvkMap = function() {
     }).addTo(this.map);
   };
 
+  this.fetchPlaces = function() {
+    var readyCallbackFn = function(places) {
+      places.forEach(this.createPlaceMarker.bind(this));
+      this.updatePlacesStatus();
+    };
+    vvk.placeService.getAllPlaces(readyCallbackFn.bind(this));
+  };
+
   this.startPlaceStatusUpdatePoller = function() {
-    this.updatePlacesStatus();
     window.setInterval(this.updatePlacesStatus.bind(this), 4000);
   };
 
@@ -51,6 +60,12 @@ var vvkMap = function() {
     };
 
     vvk.placeService.getPlacesCurrentStatus(readyCallbackFn.bind(this));
+  };
+
+  this.createPlaceMarker = function(place) {
+    var coordinates = [place.latitude, place.longitude];
+    var marker = L.marker(coordinates, {icon: this.unknownStateIcon}).addTo(this.map);
+    this.markerForPlaceIdMap[place.place_id] = marker;
   };
 
   this.updateOrCreatePlaceStatusMarker = function(place) {

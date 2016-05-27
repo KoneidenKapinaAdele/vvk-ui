@@ -14,7 +14,11 @@ var vvkRadiator = function() {
   };
 
   this.fetchPlaces = function() {
-    vvk.placeService.getAllPlaces(this.createGrid.bind(this));
+    var readyCallbackFn = function(places) {
+      this.createGrid(places);
+      this.updatePlacesStatus();
+    };
+    vvk.placeService.getAllPlaces(readyCallbackFn.bind(this));
   };
 
   this.createGrid = function(places) {
