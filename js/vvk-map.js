@@ -1,4 +1,5 @@
 var vvkMap = function() {
+  this.placesMap = {};
   this.markerForPlaceIdMap = {};
   this.map = null;
   this.freeIcon = L.icon({iconUrl: 'img/toilet_free_25px.png', iconSize: [25, 25]});
@@ -18,6 +19,7 @@ var vvkMap = function() {
         .addControl(new vvkRadiatorControl())
         .on('click', function(e) { console.log([e.latlng.lat, e.latlng.lng]); });
 
+    // Scale marker on lower left corner
     L.control.scale({metric: true, imperial: false}).addTo(this.map);
 
     // Open Street map layer
@@ -64,14 +66,27 @@ var vvkMap = function() {
 
   this.createPlaceMarker = function(place) {
     var coordinates = [place.latitude, place.longitude];
-    var marker = L.marker(coordinates, {icon: this.unknownStateIcon}).addTo(this.map);
-    this.markerForPlaceIdMap[place.place_id] = marker;
+    var marker = L.marker(coordinates, {icon: this.unknownStateIcon})
+      .bindPopup(this.generateStatusPopupText(place.name, 'tila tuntematon'))
+      .addTo(this.map);
+    this.markerForPlaceIdMap[place.id] = marker;
+    this.placesMap[place.id] = place;
   };
 
   this.updateOrCreatePlaceStatusMarker = function(place) {
     var marker = this.markerForPlaceIdMap[place.place_id];
     var coordinates = [place.latitude, place.longitude];
-    var icon = place.occupied ? this.occupiedIcon : this.freeIcon;
+    var icon = null;
+    var statusText = '';
+
+    if(place.occupied) {
+       icon = this.occupiedIcon;
+       statusText = 'Varattu';
+    }
+    else {
+       icon = this.freeIcon;
+       statusText = 'Vapaa';
+    }
 
     if(!marker) {
       marker = L.marker(coordinates, {icon: icon}).addTo(this.map);
@@ -80,6 +95,14 @@ var vvkMap = function() {
     else {
       marker.setLatLng(coordinates).setIcon(icon);
     }
+
+    var placeName = this.placesMap[place.place_id] ? this.placesMap[place.place_id].name : 'Tuntematon paikka';
+    marker.bindPopup(this.generateStatusPopupText(placeName, statusText))
+  };
+
+  this.generateStatusPopupText = function(placeName, statusText) {
+    return '<b>' + placeName + '</b>' + 
+      '<br>Tila: ' + statusText
   };
 
 };
