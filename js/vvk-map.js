@@ -17,6 +17,7 @@ var vvkMap = function() {
         .setView(vvk.solitaOfficeHkiLocation, 19)
         .addControl(new vvkGoToHomeControl())
         .addControl(new vvkRadiatorControl())
+        .addControl(new vvkChartsControl())
         .on('click', function(e) { console.log([e.latlng.lat, e.latlng.lng]); });
 
     // Scale marker on lower left corner
@@ -67,7 +68,7 @@ var vvkMap = function() {
   this.createPlaceMarker = function(place) {
     var coordinates = [place.latitude, place.longitude];
     var marker = L.marker(coordinates, {icon: this.unknownStateIcon})
-      .bindPopup(this.generateStatusPopupText(place.name, 'tila tuntematon'))
+      .bindPopup(this.generateStatusPopupText(place.name, 'Unknown state'))
       .addTo(this.map);
     this.markerForPlaceIdMap[place.id] = marker;
     this.placesMap[place.id] = place;
@@ -81,11 +82,11 @@ var vvkMap = function() {
 
     if(place.occupied) {
        icon = this.occupiedIcon;
-       statusText = 'Varattu';
+       statusText = 'Occupied';
     }
     else {
        icon = this.freeIcon;
-       statusText = 'Vapaa';
+       statusText = 'Free';
     }
 
     if(!marker) {
@@ -102,7 +103,7 @@ var vvkMap = function() {
 
   this.generateStatusPopupText = function(placeName, statusText) {
     return '<b>' + placeName + '</b>' + 
-      '<br>Tila: ' + statusText
+      '<br>State: ' + statusText
   };
 
 };
@@ -147,7 +148,7 @@ var vvkRadiatorControl = L.Control.extend({
 
     var link = L.DomUtil.create('a', 'leaflet-bar-part leaflet-bar-part-single', container);
     link.href = 'radiator.html';
-    link.title = 'Show places status in radiator';
+    link.title = 'Show places realtime status in radiator';
 
     var icon = L.DomUtil.create('span', 'fa fa-th', link);
 
@@ -155,4 +156,25 @@ var vvkRadiatorControl = L.Control.extend({
   }
  
 });
+
+var vvkChartsControl = L.Control.extend({
+ 
+  options: {
+    position: 'topleft'
+  },
+ 
+  onAdd: function (map) {
+    var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-charts');
+
+    var link = L.DomUtil.create('a', 'leaflet-bar-part leaflet-bar-part-single', container);
+    link.href = 'charts.html';
+    link.title = 'Show usage statistics in chart';
+
+    var icon = L.DomUtil.create('span', 'fa fa-bar-chart', link);
+
+    return container;
+  }
+ 
+});
+
 vvk.map = new vvkMap();
