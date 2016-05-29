@@ -17,7 +17,15 @@ var vvkPlaceService = function() {
 
   this.stringifyQueryParams = function(paramsObj) {
   	return Object.keys(paramsObj).map(function(key) {
-  		return key + '=' + paramsObj[key];
+  	  var value = paramsObj[key];
+
+  	  if(Array.isArray(value)) {
+  	    return value.map(function(v) {
+  	      return key + '=' + v;
+  	    }).join('&');
+  	  }
+  	  
+  	  return key + '=' + value;
   	}).join('&');
   };
 
@@ -33,8 +41,8 @@ var vvkPlaceService = function() {
   	this.get(vvk.backendUrl + '/v1/query/usagestats?' + this.stringifyQueryParams(paramsObj), readyCallback);
   };
 
-  this.getUsageStatsForDayHours = function(dayDate, readyCallback) {
-  	var date = moment(dayDate).startOf('day');
+  this.getUsageStatsForDayHours = function(paramsObj, readyCallback) {
+  	var date = moment(paramsObj.dayDate).startOf('day');
   	var result = {};
 
   	var usageStatsHourCallback = function(hour, usageStats) {
@@ -56,7 +64,8 @@ var vvkPlaceService = function() {
 
   		this.getUsageStats({
   			starting: moment(date).startOf('hour').utc().toISOString(), 
-  			ending: moment(date).endOf('hour').utc().toISOString()
+  			ending: moment(date).endOf('hour').utc().toISOString(),
+  			place_id: paramsObj.placeId > -1 ? [paramsObj.placeId] : []
   		}, usageStatsHourCallback.bind(this, date.hour()));
   	}
   };

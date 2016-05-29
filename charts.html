@@ -10,7 +10,10 @@
   <body>
     <div id="chart-container">
       <h1>Usage charts</h1>
-      <canvas id="chart"></canvas>
+      <div id="filters">
+        <select id="place-filter-select"></select>
+      </div>
+      <canvas id="chart" height="100px"></canvas>
     </div>
     <script src="js/lib/momentjs/moment.min.js"></script>
     <script src="js/lib/chartjs/Chart.min.js"></script>
