@@ -34,37 +34,30 @@ var vvkPlaceService = function() {
   };
 
   this.getUsageStatsForDayHours = function(dayDate, readyCallback) {
-  	var date = new Date(dayDate.getTime());
-  	date.setHours(0,0,0,0);
-  	var readyHoursCount = 0;
+  	var date = moment(dayDate).startOf('day');
   	var result = {};
 
   	var usageStatsHourCallback = function(hour, usageStats) {
-  	  readyHoursCount++;
   	  result[hour] = usageStats.average;
 
-  	  if(readyHoursCount === 23) {
-  	  	var resultArray = Object.keys(result).sort().map(function(key) {
-  	  		return result[key];
-  	  	})
+  	  if(Object.keys(result).length === 24) {
+  	  	var resultArray = Object
+  	  	  .keys(result)
+  	  	  .map(function(key) { return parseInt(key);})
+  	  	  .sort(function(a,b) { return a - b; })
+  	  	  .map(function(key) { return result[key]; });
   	  	readyCallback(resultArray);
   	  }
 
   	};
 
   	for(var hour = -1; hour <= 23; hour++) {
-  		date.setHours(date.getHours()+1);
-
-  		var startOfHour = new Date(date.getTime());
-  		startOfHour.setMinutes(0, 0, 0);
-
-  		var endOfHour = new Date(date.getTime());
-  		endOfHour.setMinutes(59, 59, 999);
+  		date.add(1, 'hours');
 
   		this.getUsageStats({
-  			starting: startOfHour.toISOString(), 
-  			ending: endOfHour.toISOString()
-  		}, usageStatsHourCallback.bind(this, hour));
+  			starting: moment(date).startOf('hour').utc().toISOString(), 
+  			ending: moment(date).endOf('hour').utc().toISOString()
+  		}, usageStatsHourCallback.bind(this, date.hour()));
   	}
   };
 
