@@ -30,7 +30,7 @@ var vvkPlaceService = function() {
   };
 
   this.getPlacesCurrentStatus = function(readyCallback) {
-    this.get(vvk.backendUrl + '/v1/status/current', readyCallback);
+    this.get(vvk.backendUrl + '/v1/place/status', readyCallback);
   };
 
   this.getAllPlaces = function(readyCallback) {
