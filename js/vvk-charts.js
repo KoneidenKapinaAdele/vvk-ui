@@ -1,5 +1,6 @@
 var vvkCharts = function() {
   this.chart = null;
+  this.dateFilter = null;
 
   this.start = function() {
     this.createFilters();
@@ -7,15 +8,16 @@ var vvkCharts = function() {
     this.fetchUsageStats();
   };
 
-  this.fetchUsageStats = function(params) {
+  this.fetchUsageStats = function() {
     var callback = function(result) {
       this.chart.data.datasets[0].data = result;
       this.chart.update();
     };
 
-    params = params ? params : {};
-    params.dayDate = new Date();
-    params.placeId = params.placeId ? params.placeId : -1;
+    var params = {
+      dayDate: this.getSelectedDateFilterValue(),
+      placeId: this.getSelectedPlaceFilterValue()
+    };
 
     vvk.placeService.getUsageStatsForDayHours(params, callback.bind(this));
   };
@@ -50,6 +52,7 @@ var vvkCharts = function() {
 
   this.createFilters = function() {
     this.createPlaceFilter();
+    this.createDateFilter();
   };
 
   this.createPlaceFilter = function() {
@@ -71,7 +74,11 @@ var vvkCharts = function() {
   };
 
   this.onPlaceFilterChange = function() {
-    this.fetchUsageStats({placeId: document.getElementById('place-filter-select').value});
+    this.fetchUsageStats();
+  };
+
+  this.getSelectedPlaceFilterValue = function() {
+    return document.getElementById('place-filter-select').value;
   };
 
   this.createOptionSelect = function(value, text) {
@@ -79,6 +86,21 @@ var vvkCharts = function() {
     opt.value = value;
     opt.innerHTML = text;
     return opt;
+  };
+
+  this.createDateFilter = function() {
+    this.dateFilter = new Pikaday({
+      field: document.getElementById('date-filter-datepicker'),
+      defaultDate: new Date(),
+      setDefaultDate: true,
+      showWeekNumber: true,
+      firstDay: 1,
+      onSelect: this.fetchUsageStats.bind(this)
+    });
+  };
+
+  this.getSelectedDateFilterValue = function() {
+    return this.dateFilter.getDate();
   };
  
 };
