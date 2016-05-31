@@ -68,7 +68,7 @@ var vvkMap = function() {
   this.createPlaceMarker = function(place) {
     var coordinates = [place.latitude, place.longitude];
     var marker = L.marker(coordinates, {icon: this.unknownStateIcon})
-      .bindPopup(this.generateStatusPopupText(place.name, 'Unknown state'))
+      .bindPopup(this.generateStatusPopupText(place.name, 'Unknown state', '-'))
       .addTo(this.map);
     this.markerForPlaceIdMap[place.id] = marker;
     this.placesMap[place.id] = place;
@@ -98,12 +98,13 @@ var vvkMap = function() {
     }
 
     var placeName = this.placesMap[place.place_id] ? this.placesMap[place.place_id].name : 'Tuntematon paikka';
-    marker.bindPopup(this.generateStatusPopupText(placeName, statusText))
+    marker.bindPopup(this.generateStatusPopupText(placeName, statusText, moment.utc(place.lastEventTime).local().format("DD.MM.YYYY HH:mm:ss")))
   };
 
-  this.generateStatusPopupText = function(placeName, statusText) {
+  this.generateStatusPopupText = function(placeName, statusText, lastEventTimeText) {
     return '<b>' + placeName + '</b>' + 
-      '<br>State: ' + statusText
+      '<br>State: ' + statusText +
+      '<br>Latest activity: ' + lastEventTimeText
   };
 
 };
