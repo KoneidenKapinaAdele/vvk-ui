@@ -70,5 +70,13 @@ var vvkPlaceService = function() {
   	}
   };
 
+  this.getTimelineForTimespan = function(startDate, endDate, readyCallback) {
+  	var paramsObj = {
+  		minutes: moment(endDate).diff(startDate, 'minutes'),
+  		ending: moment(endDate).utc().toISOString()
+  	};
+  	this.get(vvk.backendUrl + '/v1/query/timeline?' + this.stringifyQueryParams(paramsObj), readyCallback);
+  };
+
 };
 vvk.placeService = new vvkPlaceService();

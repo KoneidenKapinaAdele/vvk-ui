@@ -18,6 +18,7 @@ var vvkMap = function() {
         .addControl(new vvkGoToHomeControl())
         .addControl(new vvkRadiatorControl())
         .addControl(new vvkChartsControl())
+        .addControl(new vvkTimelineControl())
         .on('click', function(e) { console.log([e.latlng.lat, e.latlng.lng]); });
 
     // Scale marker on lower left corner
@@ -172,6 +173,26 @@ var vvkChartsControl = L.Control.extend({
     link.title = 'Show usage statistics in chart';
 
     var icon = L.DomUtil.create('span', 'fa fa-bar-chart', link);
+
+    return container;
+  }
+ 
+});
+
+var vvkTimelineControl = L.Control.extend({
+ 
+  options: {
+    position: 'topleft'
+  },
+ 
+  onAdd: function (map) {
+    var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-timeline');
+
+    var link = L.DomUtil.create('a', 'leaflet-bar-part leaflet-bar-part-single', container);
+    link.href = 'timeline.html';
+    link.title = 'Show usage statistics in timeline';
+
+    var icon = L.DomUtil.create('span', 'fa fa-clock-o', link);
 
     return container;
   }

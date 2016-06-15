@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>VVK Timeline</title>
+    <link rel="stylesheet" href="css/lib/pikaday/pikaday.css"/>
+    <link rel="stylesheet" href="css/vvk-timeline.css"/>
+  </head>
+  <body>
+    <div id="chart-container">
+      <h1>Usage timeline</h1>
+      <div id="filters">
+        <input id="date-filter-datepicker" type="text" />
+      </div>
+      <div id="timeline"></div>
+    </div>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="js/lib/momentjs/moment.min.js"></script>
+    <script src="js/lib/pikaday/pikaday.js"></script>
+    <script src="js/vvk.js"></script>
+    <script src="js/vvk-placeService.js"></script>
+    <script src="js/vvk-timeline.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function(event) { 
+        vvk.timeline.start();
+      });
+    </script>
+  </body>
+</html>
