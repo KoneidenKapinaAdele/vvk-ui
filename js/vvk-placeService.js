@@ -45,7 +45,7 @@ var vvkPlaceService = function() {
   	var date = moment(paramsObj.dayDate).startOf('day');
   	var result = {};
 
-  	var usageStatsHourCallback = function(hour, usageStats) {
+  	var httpCallback = function(hour, usageStats) {
   	  result[hour] = usageStats.average;
 
   	  if(Object.keys(result).length === 24) {
@@ -66,8 +66,32 @@ var vvkPlaceService = function() {
   			starting: moment(date).startOf('hour').utc().toISOString(), 
   			ending: moment(date).endOf('hour').utc().toISOString(),
   			place_id: paramsObj.placeId > -1 ? [paramsObj.placeId] : []
-  		}, usageStatsHourCallback.bind(this, date.hour()));
+  		}, httpCallback.bind(this, date.hour()));
   	}
+  };
+
+  this.getUsageStatsForForAllPlaces = function(places, readyCallback) {
+  	var start = moment().subtract(1, 'hour').utc().toISOString();
+  	var end = moment().utc().toISOString();
+  	var result = [];
+
+  	var httpCallback = function(place, usageStats) {
+  	  result.push([place.latitude, place.longitude, usageStats.average]);
+
+  	  if(result.length === places.length) {
+  	  	readyCallback(result);
+  	  }
+  	};
+
+  	var placesIteratorFn = function(place) {
+  		this.getUsageStats({
+  			starting: start, 
+  			ending: end,
+  			place_id: [place.id]
+  		}, httpCallback.bind(this, place));
+  	};
+
+  	places.forEach(placesIteratorFn.bind(this));
   };
 
   this.getTimelineForTimespan = function(startDate, endDate, readyCallback) {

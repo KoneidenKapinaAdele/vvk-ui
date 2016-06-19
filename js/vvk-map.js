@@ -1,7 +1,9 @@
 var vvkMap = function() {
+  this.places = [];
   this.placesMap = {};
   this.markerForPlaceIdMap = {};
   this.map = null;
+  this.heatmapLayer = null;
   this.freeIcon = L.icon({iconUrl: 'img/toilet_free_25px.png', iconSize: [25, 25]});
   this.occupiedIcon = L.icon({iconUrl: 'img/toilet_occupied_25px.png', iconSize: [25, 25]});
   this.unknownStateIcon = L.icon({iconUrl: 'img/toilet_unknown_state_25px.png', iconSize: [25, 25]});
@@ -13,9 +15,14 @@ var vvkMap = function() {
   };
 
   this.createMap = function() {
+    // Heatmap (hidden by deafault)
+    this.heatmapLayer = L.heatLayer([]);
+
+    // Main map
     this.map = L.map('map', {maxZoom: 22})
         .setView(vvk.solitaOfficeHkiLocation, 19)
         .addControl(new vvkGoToHomeControl())
+        .addControl(new vvkHeatmapControl(this.heatmapLayer))
         .addControl(new vvkRadiatorControl())
         .addControl(new vvkChartsControl())
         .addControl(new vvkTimelineControl())
@@ -48,8 +55,12 @@ var vvkMap = function() {
 
   this.fetchPlaces = function() {
     var readyCallbackFn = function(places) {
+      this.places = places;
       places.forEach(this.createPlaceMarker.bind(this));
       this.updatePlacesStatus();
+
+      this.startHeatmapUpdatePoller();
+      this.updateHeatmap();
     };
     vvk.placeService.getAllPlaces(readyCallbackFn.bind(this));
   };
@@ -58,12 +69,24 @@ var vvkMap = function() {
     window.setInterval(this.updatePlacesStatus.bind(this), 4000);
   };
 
+  this.startHeatmapUpdatePoller = function() {
+    window.setInterval(this.updateHeatmap.bind(this), 60000);
+  };
+
   this.updatePlacesStatus = function() {
     var readyCallbackFn = function(places) {
       places.forEach(this.updateOrCreatePlaceStatusMarker.bind(this));
     };
 
     vvk.placeService.getPlacesCurrentStatus(readyCallbackFn.bind(this));
+  };
+
+  this.updateHeatmap = function() {
+    var readyCallbackFn = function(statusByPlaces) {
+      this.heatmapLayer.setLatLngs(statusByPlaces);
+    };
+
+    vvk.placeService.getUsageStatsForForAllPlaces(this.places, readyCallbackFn.bind(this));
   };
 
   this.createPlaceMarker = function(place) {
@@ -134,7 +157,45 @@ var vvkGoToHomeControl = L.Control.extend({
   },
 
   _onClick: function() {
-      this._map.setView(vvk.solitaOfficeHkiLocation);
+    this._map.setView(vvk.solitaOfficeHkiLocation);
+  }
+ 
+});
+
+var vvkHeatmapControl = L.Control.extend({
+ 
+  options: {
+    position: 'topleft'
+  },
+
+  initialize: function (heatmapLayer) {
+    this.heatmapLayer = heatmapLayer;
+  },
+ 
+  onAdd: function (map) {
+    var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-heatmap');
+
+    var link = L.DomUtil.create('a', 'leaflet-bar-part leaflet-bar-part-single', container);
+    link.href = '#';
+    link.title = 'Show usage in heatmap';
+
+    var icon = L.DomUtil.create('span', 'fa fa-heartbeat', link);
+
+    L.DomEvent
+        .on(link, 'click', L.DomEvent.stopPropagation)
+        .on(link, 'click', L.DomEvent.preventDefault)
+        .on(link, 'click', this. _onClick, this)
+
+    return container;
+  },
+
+  _onClick: function() {
+    if(this._map.hasLayer(this.heatmapLayer)) {
+      this._map.removeLayer(this.heatmapLayer);
+    }
+    else {
+      this._map.addLayer(this.heatmapLayer);
+    }
   }
  
 });

@@ -9,7 +9,8 @@ html, body, #map {
 .leaflet-control-go-to-home a,
 .leaflet-control-radiator a,
 .leaflet-control-charts a,
-.leaflet-control-timeline a {
+.leaflet-control-timeline a,
+.leaflet-control-heatmap a  {
 	font-size: 1.4em;
 	color: #444;
 }
